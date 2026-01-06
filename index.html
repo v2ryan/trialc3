@@ -120,6 +120,10 @@
             font-weight: bold;
         }
 
+        .cnvt-link:hover {
+            text-decoration: underline;
+        }
+
         .scripture-text {
             line-height: 2.2;
             font-size: 1.15em;
@@ -438,16 +442,17 @@
             return result;
         }
 
-        function getCNBibleURL(ref) {
-            // 生成 cnbible.com 的連結，例如 "箴15:20-33" -> "https://cnbible.com/cnvt/proverbs/15.htm"
-            const match = ref.match(/^([^0-9]+)(\d+):(\d+)(?:-(\d+))?$/);
-            if (!match) return null;
+        function getCnbibleChapterUrl(ref) {
+            // 重用 parseReference 來解析經文引用
+            const parsed = parseReference(ref);
+            if (!parsed) return null;
 
-            const [, rawBook, chapter] = match;
-            const englishBook = CNBIBLE_BOOK_MAP[rawBook];
+            // 從 map 獲取書卷的英文 slug
+            const englishBook = CNBIBLE_BOOK_MAP[parsed.book];
             if (!englishBook) return null;
 
-            return `https://cnbible.com/cnvt/${englishBook}/${chapter}.htm`;
+            // 生成 cnbible.com 章節 URL
+            return `https://cnbible.com/cnvt/${englishBook}/${parsed.chapter}.htm`;
         }
 
         async function fetchScriptureFromAPI(ref) {
@@ -492,13 +497,11 @@
             // API 已經返回正確範圍的經文，無需過濾
             const verses = data.record;
 
-            // 生成標題，如果有對應的 cnbible.com 連結則包裝在 <a> 標籤中
-            const cnbibleURL = getCNBibleURL(ref);
-            let titleHTML;
+            // 生成標題和新譯本連結
+            const cnbibleURL = getCnbibleChapterUrl(ref);
+            let titleHTML = ref;
             if (cnbibleURL) {
-                titleHTML = `<a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${ref} <span style="font-size: 0.7em; opacity: 0.7;">↗</span></a>`;
-            } else {
-                titleHTML = ref;
+                titleHTML += ` <a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" class="cnvt-link" style="font-size: 0.8em; color: #5a8fc9; margin-left: 10px; text-decoration: none;">(新譯本)</a>`;
             }
 
             let html = `<div class="scripture-section">
