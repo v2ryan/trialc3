@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C3 讀經計劃 2026 - 郇山堂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", "Heiti TC", "Arial Unicode MS", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .date-nav {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .date-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .date-nav button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .date-nav button:active {
+            transform: translateY(0);
+        }
+
+        .date-nav button.today {
+            background: #28a745;
+        }
+
+        .date-nav button.today:hover {
+            background: #218838;
+        }
+
+        .current-date {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .scripture-section {
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scripture-title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+
+        .scripture-text {
+            line-height: 2.2;
+            font-size: 1.15em;
+            color: #2c3e50;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+
+        .verse {
+            margin-bottom: 15px;
+            padding: 5px 0;
+        }
+
+        .verse-number {
+            display: inline-block;
+            min-width: 35px;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .verse-text {
+            display: inline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.3em;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .rest-day {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.4em;
+            color: #6c757d;
+            background: #e9ecef;
+            border-radius: 12px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #c33;
+        }
+
+        .guide {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
+            border-left: 5px solid #ffc107;
+        }
+
+        .guide h3 {
+            color: #856404;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .guide ol {
+            margin-left: 25px;
+            color: #856404;
+        }
+
+        .guide li {
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+
+        .debug {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .date-nav {
+                flex-direction: column;
+            }
+
+            .current-date {
+                order: -1;
+                margin-bottom: 10px;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .date-nav button {
+                flex: 1;
+            }
+
+            header h1 {
+                font-size: 1.6em;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .scripture-title {
+                font-size: 1.4em;
+            }
+
+            .scripture-text {
+                font-size: 1.05em;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📖 C3 讀經計劃 2026</h1>
+            <p>基督教會郇山堂</p>
+        </header>
+
+        <div class="date-nav">
+            <div class="current-date" id="currentDate"></div>
+            <div class="nav-buttons">
+                <button id="prevDay">← 上一天</button>
+                <button id="todayBtn" class="today">📅 今天</button>
+                <button id="nextDay">下一天 →</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="scriptureContainer"></div>
+
+            <div class="guide">
+                <h3>📝 C3 讀經程序</h3>
+                <ol>
+                    <li>同聲頌讚與感恩，帶領人簡潔禱告結束</li>
+                    <li>每人按次序輪流讀一節經文，讀完一齊講「阿們」</li>
+                    <li>每人輪流禱讀兩節經文，被觸動時可大聲重複讀或祈禱</li>
+                    <li>分享三項：(1) 神的屬性 (2) 經文的教訓 (3) 用感恩禱告表達觸動</li>
+                    <li>主領選一項成為當天實踐的內容或金句默想</li>
+                    <li>齊聲發出感恩禱告，帶領人為各人提名祝福</li>
+                </ol>
+                <p style="margin-top: 15px; font-style: italic;">* 逢星期五、六、日及公眾假日暫停</p>
+            </div>
+
+            <div id="debugInfo" class="debug" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // C3 讀經計劃完整數據
+        const READING_PLAN = {
+            '2026-01-01': null, '2026-01-02': null,
+            '2026-01-05': '箴15:11-19', '2026-01-06': '箴15:20-33', '2026-01-07': '箴16:1-9', '2026-01-08': '箴16:10-16', '2026-01-09': null,
+            '2026-01-12': '箴16:17-24', '2026-01-13': '箴16:25-33', '2026-01-14': '箴17:1-10', '2026-01-15': '箴17:11-18', '2026-01-16': null,
+            '2026-01-19': '箴17:19-28', '2026-01-20': '箴18:1-11', '2026-01-21': '箴18:12-24', '2026-01-22': '箴19:1-9', '2026-01-23': null,
+            '2026-01-26': '箴19:10-17', '2026-01-27': '箴19:18-29', '2026-01-28': '箴20:1-10', '2026-01-29': '箴20:11-19', '2026-01-30': null,
+            '2026-02-02': '箴20:20-30', '2026-02-03': '箴21:1-10', '2026-02-04': '箴21:11-21', '2026-02-05': '箴21:22-31', '2026-02-06': null,
+            '2026-02-09': '箴22:1-9', '2026-02-10': '箴22:10-21', '2026-02-11': '箴22:22-29', '2026-02-12': '箴23:1-11', '2026-02-13': null,
+            '2026-02-16': null, '2026-02-17': null, '2026-02-18': null, '2026-02-19': null, '2026-02-20': null,
+            '2026-02-23': '箴23:12-22', '2026-02-24': '箴23:23-35', '2026-02-25': '箴24:1-12', '2026-02-26': '箴24:13-23', '2026-02-27': null,
+            '2026-03-02': '箴24:23-34', '2026-03-03': '箴25:1-10', '2026-03-04': '箴25:11-19', '2026-03-05': '箴25:20-28', '2026-03-06': null,
+            '2026-03-09': '箴26:1-9', '2026-03-10': '箴26:10-19', '2026-03-11': '箴26:20-28', '2026-03-12': '箴27:1-9', '2026-03-13': null,
+            '2026-03-16': '箴27:10-17', '2026-03-17': '箴27:18-27', '2026-03-18': '箴28:1-9', '2026-03-19': '箴28:10-18', '2026-03-20': null,
+            '2026-03-23': '箴28:19-28', '2026-03-24': '箴29:1-9', '2026-03-25': '箴29:10-18', '2026-03-26': '箴29:19-27', '2026-03-27': null,
+            '2026-03-30': '箴30:1-9', '2026-03-31': '箴30:10-20',
+            '2026-04-01': '箴30:21-33', '2026-04-02': '箴31:1-9', '2026-04-03': null, '2026-04-06': null, '2026-04-07': null,
+            '2026-04-08': '箴31:10-31', '2026-04-09': '約一1:1-10', '2026-04-10': null,
+            '2026-04-13': '約一2:1-6', '2026-04-14': '約一2:7-13', '2026-04-15': '約一2:14-17', '2026-04-16': '約一2:18-23', '2026-04-17': null,
+            '2026-04-20': '約一2:24-29', '2026-04-21': '約一3:1-6', '2026-04-22': '約一3:7-12', '2026-04-23': '約一3:13-20', '2026-04-24': null,
+            '2026-04-27': '約一3:21-24', '2026-04-28': '約一4:1-6', '2026-04-29': '約一4:7-13', '2026-04-30': '約一4:14-21',
+            '2026-05-01': null, '2026-05-04': '約一5:1-12', '2026-05-05': '約一5:13-17', '2026-05-06': '約一5:18-21', '2026-05-07': '約二1-8', '2026-05-08': null,
+            '2026-05-11': '約二9-13', '2026-05-12': '約三1-10', '2026-05-13': '約三11-15', '2026-05-14': '約1:1-18', '2026-05-15': null,
+            '2026-05-18': '約1:19-34', '2026-05-19': '約1:35-51', '2026-05-20': '約2:1-12', '2026-05-21': '約2:13-25', '2026-05-22': null,
+            '2026-05-25': '約3:1-15', '2026-05-26': '約3:16-36', '2026-05-27': '約4:1-26', '2026-05-28': '約4:27-42', '2026-05-29': null,
+            '2026-06-01': '約4:43-54', '2026-06-02': '約5:1-15', '2026-06-03': '約5:16-30', '2026-06-04': '約5:31-47', '2026-06-05': null,
+            '2026-06-08': '約6:1-15', '2026-06-09': '約6:16-21', '2026-06-10': '約6:22-40', '2026-06-11': '約6:41-59', '2026-06-12': null,
+            '2026-06-15': '約6:60-71', '2026-06-16': '約7:1-13', '2026-06-17': '約7:14-24', '2026-06-18': '約7:25-36', '2026-06-19': null,
+            '2026-06-22': '約7:37-52', '2026-06-23': '約8:1-11', '2026-06-24': '約8:12-20', '2026-06-25': '約8:21-30', '2026-06-26': null,
+            '2026-06-29': '約8:31-47', '2026-06-30': '約8:48-59',
+            '2026-07-01': null, '2026-07-02': '約9:1-12', '2026-07-03': null,
+            '2026-07-06': '約9:13-34', '2026-07-07': '約9:35-41', '2026-07-08': '約10:1-10', '2026-07-09': '約10:11-21', '2026-07-10': null,
+            '2026-07-13': '約10:22-29', '2026-07-14': '約10:30-42', '2026-07-15': '約11:1-16', '2026-07-16': '約11:17-27', '2026-07-17': null,
+            '2026-07-20': '約11:28-37', '2026-07-21': '約11:38-44', '2026-07-22': '約11:45-57', '2026-07-23': '約12:1-11', '2026-07-24': null,
+            '2026-07-27': '約12:12-19', '2026-07-28': '約12:20-26', '2026-07-29': '約12:27-36', '2026-07-30': '約12:37-50', '2026-07-31': null,
+            '2026-08-03': '約13:1-17', '2026-08-04': '約13:18-30', '2026-08-05': '約13:31-38', '2026-08-06': '約14:1-14', '2026-08-07': null,
+            '2026-08-10': '約14:15-31', '2026-08-11': '約15:1-17', '2026-08-12': '約15:18-27', '2026-08-13': '約16:1-11', '2026-08-14': null,
+            '2026-08-17': '約16:12-22', '2026-08-18': '約16:23-33', '2026-08-19': '約17:1-12', '2026-08-20': '約17:13-26', '2026-08-21': null,
+            '2026-08-24': '約18:1-11', '2026-08-25': '約18:12-24', '2026-08-26': '約18:25-32', '2026-08-27': '約18:33-40', '2026-08-28': null,
+            '2026-08-31': '約19:1-16',
+            '2026-09-01': '約19:17-27', '2026-09-02': '約19:28-42', '2026-09-03': '約20:1-10', '2026-09-04': null,
+            '2026-09-07': '約20:11-18', '2026-09-08': '約20:19-31', '2026-09-09': '約21:1-14', '2026-09-10': '約21:15-25', '2026-09-11': null,
+            '2026-09-14': '羅1:1-7', '2026-09-15': '羅1:8-15', '2026-09-16': '羅1:16-25', '2026-09-17': '羅1:26-32', '2026-09-18': null,
+            '2026-09-21': '羅2:1-11', '2026-09-22': '羅2:12-16', '2026-09-23': '羅2:17-29', '2026-09-24': '羅3:1-8', '2026-09-25': null,
+            '2026-09-28': '羅3:9-20', '2026-09-29': '羅3:21-31', '2026-09-30': '羅4:1-8',
+            '2026-10-01': null, '2026-10-02': null,
+            '2026-10-05': '羅4:9-16', '2026-10-06': '羅4:17-25', '2026-10-07': '羅5:1-11', '2026-10-08': '羅5:12-21', '2026-10-09': null,
+            '2026-10-12': '羅6:1-11', '2026-10-13': '羅6:12-23', '2026-10-14': '羅7:1-6', '2026-10-15': '羅7:7-17', '2026-10-16': null,
+            '2026-10-19': '羅7:18-25', '2026-10-20': '羅8:1-11', '2026-10-21': '羅8:12-25', '2026-10-22': '羅8:26-30', '2026-10-23': null,
+            '2026-10-26': '羅8:31-39', '2026-10-27': '羅9:1-13', '2026-10-28': '羅9:14-20', '2026-10-29': '羅9:21-29', '2026-10-30': null,
+            '2026-11-02': '羅9:30-10:4', '2026-11-03': '羅10:5-13', '2026-11-04': '羅10:14-21', '2026-11-05': '羅11:1-10', '2026-11-06': null,
+            '2026-11-09': '羅11:11-16', '2026-11-10': '羅11:17-24', '2026-11-11': '羅11:25-32', '2026-11-12': '羅11:33-12:2', '2026-11-13': null,
+            '2026-11-16': '羅12:3-8', '2026-11-17': '羅12:9-21', '2026-11-18': '羅13:1-7', '2026-11-19': '羅13:8-14', '2026-11-20': null,
+            '2026-11-23': '羅14:1-6', '2026-11-24': '羅14:7-12', '2026-11-25': '羅14:13-23', '2026-11-26': '羅15:1-13', '2026-11-27': null,
+            '2026-11-30': '羅15:14-21',
+            '2026-12-01': '羅15:22-29', '2026-12-02': '羅15:30-16:2', '2026-12-03': '羅16:3-16', '2026-12-04': null,
+            '2026-12-07': '羅16:17-27', '2026-12-08': '加1:1-10', '2026-12-09': '加1:11-17', '2026-12-10': '加1:18-24', '2026-12-11': null,
+            '2026-12-14': '加2:1-10', '2026-12-15': '加2:11-16', '2026-12-16': '加2:17-21', '2026-12-17': '加3:1-9', '2026-12-18': null,
+            '2026-12-21': '加3:10-14', '2026-12-22': '加3:15-22', '2026-12-23': '加3:23-29', '2026-12-24': null, '2026-12-25': null,
+            '2026-12-28': '加4:1-11', '2026-12-29': '加4:12-20', '2026-12-30': '加4:21-31', '2026-12-31': '加5:1-6'
+        };
+
+        // 書卷名稱對照 (用於 API)
+        // 注意：API 使用 "約一"、"約二"、"約三"，不是 "約壹"、"約貳"、"約參"
+        const BOOK_MAP = {
+            '箴': '箴',
+            '約一': '約一',
+            '約二': '約二',
+            '約三': '約三',
+            '約': '約',
+            '羅': '羅',
+            '加': '加'
+        };
+
+        // 書卷名稱對照 (用於 cnbible.com)
+        const CNBIBLE_BOOK_MAP = {
+            '箴': 'proverbs',
+            '約一': '1_john',
+            '約二': '2_john',
+            '約三': '3_john',
+            '約': 'john',
+            '羅': 'romans',
+            '加': 'galatians'
+        };
+
+        let currentDate = new Date();
+        const debugMode = window.location.hash === '#debug';
+
+        function log(msg, data) {
+            if (debugMode) {
+                const debugDiv = document.getElementById('debugInfo');
+                debugDiv.style.display = 'block';
+                const entry = document.createElement('div');
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                if (data) entry.textContent += ': ' + JSON.stringify(data);
+                debugDiv.appendChild(entry);
+                console.log(msg, data);
+            }
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatDisplayDate(date) {
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const y = date.getFullYear();
+            const m = date.getMonth() + 1;
+            const d = date.getDate();
+            const wd = weekdays[date.getDay()];
+            return `${y}年${m}月${d}日 星期${wd}`;
+        }
+
+        function parseReference(ref) {
+            // 解析經文引用，例如 "約1:1-18"
+            const match = ref.match(/^([^0-9]+)(\d+):(\d+)(?:-(\d+))?$/);
+            if (!match) {
+                log('Parse failed', ref);
+                return null;
+            }
+
+            const [, rawBook, chapter, startVerse, endVerse] = match;
+            const book = BOOK_MAP[rawBook] || rawBook;
+
+            const result = {
+                book,
+                chapter: parseInt(chapter),
+                startVerse: parseInt(startVerse),
+                endVerse: endVerse ? parseInt(endVerse) : parseInt(startVerse)
+            };
+
+            log('Parsed reference', result);
+            return result;
+        }
+
+        function getCNBibleURL(ref) {
+            // 生成 cnbible.com 的連結，例如 "箴15:20-33" -> "https://cnbible.com/cnvt/proverbs/15.htm"
+            const match = ref.match(/^([^0-9]+)(\d+):(\d+)(?:-(\d+))?$/);
+            if (!match) return null;
+
+            const [, rawBook, chapter] = match;
+            const englishBook = CNBIBLE_BOOK_MAP[rawBook];
+            if (!englishBook) return null;
+
+            return `https://cnbible.com/cnvt/${englishBook}/${chapter}.htm`;
+        }
+
+        async function fetchScriptureFromAPI(ref) {
+            const parsed = parseReference(ref);
+            if (!parsed) return null;
+
+            // 使用 qstr 格式 - 測試證明這是最可靠的方法
+            const qstr = `${parsed.book}${parsed.chapter}:${parsed.startVerse}-${parsed.endVerse}`;
+            const url = `https://bible.fhl.net/json/qsb.php?qstr=${encodeURIComponent(qstr)}&version=unv&gb=0`;
+
+            log('Fetching from API', url);
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                log('API response', data);
+
+                if (data && data.record && Array.isArray(data.record) && data.record.length > 0) {
+                    log('Success', `Got ${data.record.length} verses`);
+                    return data;
+                }
+
+                log('No data in response');
+                return null;
+            } catch (error) {
+                log('Fetch error', error.message);
+                return null;
+            }
+        }
+
+        async function fetchScripture(ref) {
+            log('Fetching scripture', ref);
+
+            const data = await fetchScriptureFromAPI(ref);
+
+            if (!data || !data.record || data.record.length === 0) {
+                log('Failed to fetch');
+                return `<div class="error">❌ 無法載入經文：${ref}<br>請檢查網絡連接或稍後再試</div>`;
+            }
+
+            // API 已經返回正確範圍的經文，無需過濾
+            const verses = data.record;
+
+            // 生成標題，如果有對應的 cnbible.com 連結則包裝在 <a> 標籤中
+            const cnbibleURL = getCNBibleURL(ref);
+            let titleHTML;
+            if (cnbibleURL) {
+                titleHTML = `<a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">${ref} <span style="font-size: 0.7em; opacity: 0.7;">↗</span></a>`;
+            } else {
+                titleHTML = ref;
+            }
+
+            let html = `<div class="scripture-section">
+                <div class="scripture-title">${titleHTML}</div>
+                <div class="scripture-text">`;
+
+            verses.forEach(v => {
+                html += `<div class="verse">
+                    <span class="verse-number">${v.sec}</span>
+                    <span class="verse-text">${v.bible_text}</span>
+                </div>`;
+            });
+
+            html += `</div></div>`;
+
+            log('Rendered HTML', `${verses.length} verses`);
+            return html;
+        }
+
+        async function loadReading(date) {
+            const dateStr = formatDate(date);
+            const container = document.getElementById('scriptureContainer');
+            const displayDate = document.getElementById('currentDate');
+
+            displayDate.textContent = formatDisplayDate(date);
+
+            const reading = READING_PLAN[dateStr];
+
+            if (reading === undefined) {
+                container.innerHTML = '<div class="rest-day">📅 此日期不在讀經計劃範圍內</div>';
+                return;
+            }
+
+            if (reading === null) {
+                container.innerHTML = '<div class="rest-day">🙏 今天是休息日或公眾假期</div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">載入經文中</div>';
+
+            const html = await fetchScripture(reading);
+            container.innerHTML = html;
+        }
+
+        function changeDate(days) {
+            currentDate.setDate(currentDate.getDate() + days);
+            loadReading(currentDate);
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            loadReading(currentDate);
+        }
+
+        // 事件監聽
+        document.getElementById('prevDay').addEventListener('click', () => changeDate(-1));
+        document.getElementById('nextDay').addEventListener('click', () => changeDate(1));
+        document.getElementById('todayBtn').addEventListener('click', goToToday);
+
+        // 鍵盤導航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeDate(-1);
+            if (e.key === 'ArrowRight') changeDate(1);
+            if (e.key === 'Home') goToToday();
+        });
+
+        // 初始化
+        log('App initialized');
+        loadReading(currentDate);
+    </script>
+</body>
+</html>
