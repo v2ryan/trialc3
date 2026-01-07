@@ -594,13 +594,13 @@
             const vtPdfURL = getCcbiblestudyVtPdfUrl(ref);
             let titleHTML = ref;
             if (cnbibleURL) {
-                titleHTML += ` <a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" class="cnvt-link" style="font-size: 0.8em; color: #5a8fc9; margin-left: 10px; text-decoration: none;">(轉新譯本)</a>`;
+                titleHTML += ` <a href="${cnbibleURL}" class="cnvt-link" style="font-size: 0.8em; color: #5a8fc9; margin-left: 10px; text-decoration: none;">(轉新譯本)</a>`;
             }
             if (commentaryURL) {
-                titleHTML += ` <a href="${commentaryURL}" target="_blank" rel="noopener noreferrer" class="commentary-link" style="font-size: 0.7em; color: #6c8299; margin-left: 10px; text-decoration: none;">(註解)</a>`;
+                titleHTML += ` <a href="${commentaryURL}" class="commentary-link" style="font-size: 0.7em; color: #6c8299; margin-left: 10px; text-decoration: none;">(註解)</a>`;
             }
             if (vtPdfURL) {
-                titleHTML += ` <a href="${vtPdfURL}" target="_blank" rel="noopener noreferrer" class="commentary-link" style="font-size: 0.7em; color: #6c8299; margin-left: 10px; text-decoration: none;">(譯本對照)</a>`;
+                titleHTML += ` <a href="${vtPdfURL}" class="commentary-link" style="font-size: 0.7em; color: #6c8299; margin-left: 10px; text-decoration: none;">(譯本對照)</a>`;
             }
 
             let html = `<div class="scripture-section">
