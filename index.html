@@ -133,35 +133,45 @@
             font-weight: bold;
         }
 
-        /* 查經小按鈕（全部統一採用注釋樣式） */
-        .scripture-title .study-link {
+        /* 經文工具按鈕：統一外觀（轉新譯本 / 譯本對照 / 經文注釋） */
+        .btn-scripture {
             display: inline-block;
-            font-size: 0.45em;
-            font-weight: 600;
-            padding: 1px 5px;
-            margin-left: 4px;
-            border-radius: 4px;
-            vertical-align: middle;
-            border: 1px solid #cfd6e4;
-            background: #f7f9fc;
-            color: #4f5f7a;
+            font-size: 0.55em;
+            /* 這裡維持較小的比例以適應標題設計 */
+            line-height: 1.6;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid #cfd9ff;
+            background: #f5f8ff;
+            color: #3f6ad8;
             text-decoration: none;
             white-space: nowrap;
+            cursor: pointer;
             transition: background 0.2s ease, border-color 0.2s ease;
+            vertical-align: middle;
         }
 
-        .scripture-title .study-link:hover {
-            background: #eef2f8;
-            border-color: #b8c2d9;
+        .btn-scripture:hover {
+            background: #eaf0ff;
+            border-color: #b7c5ff;
         }
 
-        /* 手機優化 */
-        @media (max-width: 480px) {
-            .scripture-title .study-link {
-                font-size: 0.42em;
-                padding: 1px 3px;
-                margin-left: 3px;
-            }
+        /* 位置微調 */
+        .scripture-title .btn-scripture {
+            margin-left: 10px;
+        }
+
+        .scripture-tools {
+            margin-bottom: 15px;
+            margin-top: -5px;
+        }
+
+        .scripture-tools .btn-scripture {
+            margin-right: 10px;
+            margin-top: 6px;
+            font-size: 0.9em;
+            /* 工具列按鈕稍大一點方便點擊 */
+            padding: 4px 10px;
         }
 
         .scripture-text {
@@ -632,19 +642,25 @@
             const cnbibleURL = getCnbibleChapterUrl(ref);
             const commentaryURL = getCcbiblestudyCommentaryUrl(ref);
             const vtPdfURL = getCcbiblestudyVtPdfUrl(ref);
+
+            // 標題行：經文引用 + 轉新譯本
             let titleHTML = ref;
-            if (vtPdfURL) {
-                titleHTML += ` <a href="${vtPdfURL}" class="study-link link-commentary">譯文對照</a>`;
-            }
             if (cnbibleURL) {
-                titleHTML += ` <a href="${cnbibleURL}" class="study-link link-ncv">新譯本</a>`;
+                titleHTML += ` <a href="${cnbibleURL}" class="btn-scripture">轉新譯本</a>`;
+            }
+
+            // 第二行：譯本對照 / 經文注釋
+            let linksHTML = '';
+            if (vtPdfURL) {
+                linksHTML += `<a href="${vtPdfURL}" class="btn-scripture">譯本對照</a>`;
             }
             if (commentaryURL) {
-                titleHTML += ` <a href="${commentaryURL}" class="study-link link-commentary">經文注釋</a>`;
+                linksHTML += `<a href="${commentaryURL}" class="btn-scripture">經文注釋</a>`;
             }
 
             let html = `<div class="scripture-section">
                 <div class="scripture-title">${titleHTML}</div>
+                ${linksHTML ? `<div class="scripture-tools">${linksHTML}</div>` : ''}
                 <div class="scripture-text">`;
 
             verses.forEach(v => {
