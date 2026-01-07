@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,7 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
@@ -112,8 +113,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .scripture-title {
@@ -126,6 +134,10 @@
         }
 
         .cnvt-link:hover {
+            text-decoration: underline;
+        }
+
+        .commentary-link:hover {
             text-decoration: underline;
         }
 
@@ -169,9 +181,20 @@
         }
 
         @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
+
+            0%,
+            20% {
+                content: '.';
+            }
+
+            40% {
+                content: '..';
+            }
+
+            60%,
+            100% {
+                content: '...';
+            }
         }
 
         .rest-day {
@@ -277,6 +300,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -465,6 +489,51 @@
             return `https://cnbible.com/cnvt/${englishBook}/${parsed.chapter}.htm`;
         }
 
+        // ===== CCBibleStudy 註解(CT) 連結生成（最終版：覆蓋你目前用到的書卷） =====
+        function pad2(n) { return String(n).padStart(2, '0'); }
+        function pad3(n) { return String(n).padStart(3, '0'); }
+
+        function getCcbiblestudyCommentaryUrl(ref) {
+            const p = parseReference(ref);
+            if (!p || !p.book || !p.chapter) return null;
+
+            // 只處理你現有讀經計劃會出現的書卷（可再擴展）
+            // 注意：CCBibleStudy 有時用 .org、有時用 .net；你已驗證註解版主要用 .org
+            const base = 'https://www.ccbiblestudy.org';
+
+            // 舊約：詩篇（章數 3 位數）
+            if (p.book === '詩') {
+                return `${base}/Old%20Testament/19Psa/19CT${pad3(p.chapter)}.htm`;
+            }
+
+            // 舊約：箴言（章數不補0）
+            if (p.book === '箴') {
+                return `${base}/Old%20Testament/20Prov/20CT${p.chapter}.htm`;
+            }
+
+            // 新約：約翰福音（章數 2 位數）
+            if (p.book === '約') {
+                return `${base}/New%20Testament/43John/43CT${pad2(p.chapter)}.htm`;
+            }
+
+            // 新約：羅馬書（章數 2 位數）
+            if (p.book === '羅') {
+                return `${base}/New%20Testament/45Rom/45CT${pad2(p.chapter)}.htm`;
+            }
+
+            // 新約：約翰一書 / 二書 / 三書
+            // 你已驗證：
+            // 約一第5章：/New%20Testament/62%201John/62CT05.htm
+            // 約二：/New%20Testament/62%201John/62CT02.htm
+            // 所以統一：62 1John + 62CT{章(2位數)}.htm
+            if (p.book === '約一' || p.book === '約二' || p.book === '約三') {
+                return `${base}/New%20Testament/62%201John/62CT${pad2(p.chapter)}.htm`;
+            }
+
+            // 其他書卷未做 mapping：回 null（避免亂跳 404）
+            return null;
+        }
+
         async function fetchScriptureFromAPI(ref) {
             const parsed = parseReference(ref);
             if (!parsed) return null;
@@ -507,11 +576,15 @@
             // API 已經返回正確範圍的經文，無需過濾
             const verses = data.record;
 
-            // 生成標題和新譯本連結
+            // 生成標題和連結
             const cnbibleURL = getCnbibleChapterUrl(ref);
+            const commentaryURL = getCcbiblestudyCommentaryUrl(ref);
             let titleHTML = ref;
             if (cnbibleURL) {
                 titleHTML += ` <a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" class="cnvt-link" style="font-size: 0.8em; color: #5a8fc9; margin-left: 10px; text-decoration: none;">(新譯本)</a>`;
+            }
+            if (commentaryURL) {
+                titleHTML += ` <a href="${commentaryURL}" target="_blank" rel="noopener noreferrer" class="commentary-link" style="font-size: 0.9em; color: #6c8299; margin-left: 10px; text-decoration: none;">(註解)</a>`;
             }
 
             let html = `<div class="scripture-section">
@@ -583,4 +656,5 @@
         loadReading(currentDate);
     </script>
 </body>
+
 </html>
