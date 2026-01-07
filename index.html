@@ -175,20 +175,37 @@
         }
 
         .verse {
-            margin-bottom: 15px;
-            padding: 5px 0;
+            display: grid;
+            grid-template-columns: 36px 1fr;
+            /* 左：節號寬度 */
+            column-gap: 12px;
+            align-items: start;
+            margin-bottom: 14px;
         }
 
         .verse-number {
-            display: inline-block;
-            min-width: 35px;
+            display: block;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.6;
+            padding-top: 2px;
             color: #667eea;
             font-weight: bold;
             font-size: 0.95em;
         }
 
         .verse-text {
-            display: inline;
+            display: block;
+            line-height: 1.9;
+            word-break: break-word;
+        }
+
+        /* 小屏再細少少 */
+        @media (max-width: 420px) {
+            .verse {
+                grid-template-columns: 32px 1fr;
+                column-gap: 10px;
+            }
         }
 
         .loading {
@@ -632,8 +649,8 @@
 
             verses.forEach(v => {
                 html += `<div class="verse">
-                    <span class="verse-number">${v.sec}</span>
-                    <span class="verse-text">${v.bible_text}</span>
+                    <div class="verse-number">${v.sec}</div>
+                    <div class="verse-text">${v.bible_text}</div>
                 </div>`;
             });
 
