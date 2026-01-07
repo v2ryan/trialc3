@@ -489,48 +489,60 @@
             return `https://cnbible.com/cnvt/${englishBook}/${parsed.chapter}.htm`;
         }
 
-        // ===== CCBibleStudy 註解(CT) 連結生成（最終版：覆蓋你目前用到的書卷） =====
+        // ====== CCBibleStudy helpers ======
+        const CCB_BASE = 'https://www.ccbiblestudy.org';
+        const encodePath = (s) => s.replace(/ /g, '%20');
+
         function pad2(n) { return String(n).padStart(2, '0'); }
         function pad3(n) { return String(n).padStart(3, '0'); }
 
+        /**
+         * CCBibleStudy 註解（CT）連結
+         */
         function getCcbiblestudyCommentaryUrl(ref) {
             const p = parseReference(ref);
             if (!p || !p.book || !p.chapter) return null;
 
-            // 只處理你現有讀經計劃會出現的書卷（可再擴展）
-            // 注意：CCBibleStudy 有時用 .org、有時用 .net；你已驗證註解版主要用 .org
-            const base = 'https://www.ccbiblestudy.org';
-
-            // 舊約：詩篇（章數 3 位數）
             if (p.book === '詩') {
-                return `${base}/Old%20Testament/19Psa/19CT${pad3(p.chapter)}.htm`;
+                return `${CCB_BASE}/Old%20Testament/19Psa/19CT${pad3(p.chapter)}.htm`;
             }
-
-            // 舊約：箴言（章數不補0）
             if (p.book === '箴') {
-                return `${base}/Old%20Testament/20Prov/20CT${p.chapter}.htm`;
+                return `${CCB_BASE}/Old%20Testament/20Prov/20CT${p.chapter}.htm`;
             }
-
-            // 新約：約翰福音（章數 2 位數）
             if (p.book === '約') {
-                return `${base}/New%20Testament/43John/43CT${pad2(p.chapter)}.htm`;
+                return `${CCB_BASE}/New%20Testament/43John/43CT${pad2(p.chapter)}.htm`;
             }
-
-            // 新約：羅馬書（章數 2 位數）
             if (p.book === '羅') {
-                return `${base}/New%20Testament/45Rom/45CT${pad2(p.chapter)}.htm`;
+                return `${CCB_BASE}/New%20Testament/45Rom/45CT${pad2(p.chapter)}.htm`;
             }
-
-            // 新約：約翰一書 / 二書 / 三書
-            // 你已驗證：
-            // 約一第5章：/New%20Testament/62%201John/62CT05.htm
-            // 約二：/New%20Testament/62%201John/62CT02.htm
-            // 所以統一：62 1John + 62CT{章(2位數)}.htm
             if (p.book === '約一' || p.book === '約二' || p.book === '約三') {
-                return `${base}/New%20Testament/62%201John/62CT${pad2(p.chapter)}.htm`;
+                return `${CCB_BASE}/New%20Testament/${encodePath('62 1John')}/62CT${pad2(p.chapter)}.htm`;
             }
+            return null;
+        }
 
-            // 其他書卷未做 mapping：回 null（避免亂跳 404）
+        /**
+         * CCBibleStudy 譯文對照（VT PDF）連結
+         */
+        function getCcbiblestudyVtPdfUrl(ref) {
+            const p = parseReference(ref);
+            if (!p || !p.book || !p.chapter) return null;
+
+            if (p.book === '詩') {
+                return `${CCB_BASE}/Old%20Testament/19Psa/19VT${pad3(p.chapter)}.pdf`;
+            }
+            if (p.book === '箴') {
+                return `${CCB_BASE}/Old%20Testament/20Prov/20VT${pad2(p.chapter)}.pdf`;
+            }
+            if (p.book === '約') {
+                return `${CCB_BASE}/New%20Testament/43John/43VT${pad2(p.chapter)}.pdf`;
+            }
+            if (p.book === '羅') {
+                return `${CCB_BASE}/New%20Testament/45Rom/45VT${pad2(p.chapter)}.pdf`;
+            }
+            if (p.book === '約一' || p.book === '約二' || p.book === '約三') {
+                return `${CCB_BASE}/New%20Testament/${encodePath('62 1John')}/62VT${pad2(p.chapter)}.pdf`;
+            }
             return null;
         }
 
@@ -579,12 +591,16 @@
             // 生成標題和連結
             const cnbibleURL = getCnbibleChapterUrl(ref);
             const commentaryURL = getCcbiblestudyCommentaryUrl(ref);
+            const vtPdfURL = getCcbiblestudyVtPdfUrl(ref);
             let titleHTML = ref;
             if (cnbibleURL) {
-                titleHTML += ` <a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" class="cnvt-link" style="font-size: 0.8em; color: #5a8fc9; margin-left: 10px; text-decoration: none;">(新譯本)</a>`;
+                titleHTML += ` <a href="${cnbibleURL}" target="_blank" rel="noopener noreferrer" class="cnvt-link" style="font-size: 0.8em; color: #5a8fc9; margin-left: 10px; text-decoration: none;">(轉新譯本)</a>`;
             }
             if (commentaryURL) {
-                titleHTML += ` <a href="${commentaryURL}" target="_blank" rel="noopener noreferrer" class="commentary-link" style="font-size: 0.9em; color: #6c8299; margin-left: 10px; text-decoration: none;">(註解)</a>`;
+                titleHTML += ` <a href="${commentaryURL}" target="_blank" rel="noopener noreferrer" class="commentary-link" style="font-size: 0.7em; color: #6c8299; margin-left: 10px; text-decoration: none;">(註解)</a>`;
+            }
+            if (vtPdfURL) {
+                titleHTML += ` <a href="${vtPdfURL}" target="_blank" rel="noopener noreferrer" class="commentary-link" style="font-size: 0.7em; color: #6c8299; margin-left: 10px; text-decoration: none;">(譯本對照)</a>`;
             }
 
             let html = `<div class="scripture-section">
