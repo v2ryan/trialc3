@@ -133,12 +133,44 @@
             font-weight: bold;
         }
 
-        .cnvt-link:hover {
-            text-decoration: underline;
+        /* 查經小按鈕（共用） */
+        .scripture-title .study-link {
+            display: inline-block;
+            font-size: 0.56em;
+            padding: 2px 6px;
+            margin-left: 4px;
+            border-radius: 4px;
+            vertical-align: middle;
+            border: 1px solid #cfd6e4;
+            background: #f7f9fc;
+            color: #4f5f7a;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.2s ease, border-color 0.2s ease;
         }
 
-        .commentary-link:hover {
-            text-decoration: underline;
+        .scripture-title .study-link:hover {
+            background: #eef2f8;
+            border-color: #b8c2d9;
+        }
+
+        /* 新譯本：保持最普通 */
+        .scripture-title .link-ncv {
+            font-weight: normal;
+        }
+
+        /* 經文注釋：輕微強調（唔用顏色） */
+        .scripture-title .link-commentary {
+            font-weight: 600;
+        }
+
+        /* 手機優化 */
+        @media (max-width: 480px) {
+            .scripture-title .study-link {
+                font-size: 0.5em;
+                padding: 1px 4px;
+                margin-left: 3px;
+            }
         }
 
         .scripture-text {
@@ -594,13 +626,13 @@
             const vtPdfURL = getCcbiblestudyVtPdfUrl(ref);
             let titleHTML = ref;
             if (vtPdfURL) {
-                titleHTML += ` <a href="${vtPdfURL}" class="commentary-link" style="font-size: 0.85em; color: #6c8299; margin-left: 10px; text-decoration: none;">(譯文對照)</a>`;
+                titleHTML += ` <a href="${vtPdfURL}" class="study-link link-commentary">譯文對照</a>`;
             }
             if (cnbibleURL) {
-                titleHTML += ` <a href="${cnbibleURL}" class="cnvt-link" style="font-size: 0.85em; color: #6c8299; margin-left: 10px; text-decoration: none;">(新譯本)</a>`;
+                titleHTML += ` <a href="${cnbibleURL}" class="study-link link-ncv">新譯本</a>`;
             }
             if (commentaryURL) {
-                titleHTML += ` <a href="${commentaryURL}" class="commentary-link" style="font-size: 0.85em; color: #6c8299; margin-left: 10px; text-decoration: none; font-weight: 600;">(經文注釋)</a>`;
+                titleHTML += ` <a href="${commentaryURL}" class="study-link link-commentary">注釋</a>`;
             }
 
             let html = `<div class="scripture-section">
